@@ -10,7 +10,8 @@ body {
 }
 
 .container {
-  max-width: 600px;
+  width: 100%;
+  max-width: 400px;
   background: white;
   padding: 20px;
   border-radius: 10px;
@@ -19,15 +20,17 @@ body {
 }
 
 .title {
-  text-align: center;
   margin: 0 0 20px;
-  font-size: 24px;
+  font-size: 20px;
+  line-height: 1.4;
+  word-wrap: break-word;
 }
 
 #timer-display {
   margin-bottom: 20px;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
+  word-wrap: break-word;
 }
 
 .restart-btn {
@@ -38,6 +41,8 @@ body {
   font-size: 16px;
   border-radius: 5px;
   cursor: pointer;
+  width: 100%;
+  margin-bottom: 20px;
 }
 
 .restart-btn:hover {
@@ -46,12 +51,14 @@ body {
 
 .milestones-list {
   margin-top: 20px;
+  text-align: left;
 }
 
 .milestone {
   display: flex;
   align-items: center;
   margin-bottom: 15px;
+  font-size: 14px;
 }
 
 .progress-bar-container {
@@ -59,11 +66,12 @@ body {
   background-color: #e9ecef;
   border-radius: 5px;
   overflow: hidden;
+  height: 10px;
   margin-right: 10px;
 }
 
 .progress-bar {
-  height: 10px;
+  height: 100%;
   background-color: #28a745;
   width: 0%;
   transition: width 0.3s;
@@ -71,5 +79,4 @@ body {
 
 .milestone span {
   flex-shrink: 0;
-  font-size: 14px;
 }
