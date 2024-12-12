@@ -39,7 +39,8 @@ function restoreState() {
   const savedStartTime = localStorage.getItem("quitTrackerStartTime");
   if (savedStartTime) {
     startTime = parseInt(savedStartTime, 10);
-    startBtn.disabled = true;
+    startBtn.textContent = "Restart Timer"; // Show the restart option
+    startBtn.disabled = false; // Allow restarting
     resetBtn.disabled = false;
     milestones.forEach(milestone => addMilestoneToList(milestone));
     timerInterval = setInterval(updateTimer, 1000);
@@ -65,6 +66,7 @@ function resetTimer() {
   startTime = null;
   localStorage.removeItem("quitTrackerStartTime"); // Clear stored start time
   timerDisplay.innerHTML = "Time Since Quit: <span>0h 0m 0s</span>";
+  startBtn.textContent = "Start Timer"; // Reset button text
   startBtn.disabled = false;
   resetBtn.disabled = true;
 
