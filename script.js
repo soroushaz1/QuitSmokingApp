@@ -104,21 +104,39 @@ function addMilestoneToList(milestone) {
   milestonesList.appendChild(milestoneDiv);
 }
 
-// Update milestones dynamically
+// Update milestones dynamically and notify user
 function updateMilestones(elapsedTime) {
   const milestonesElements = milestonesList.querySelectorAll(".milestone");
 
   milestonesElements.forEach((milestoneDiv, index) => {
     const milestoneTime = milestones[index].time;
     const progressBar = milestoneDiv.querySelector(".progress-bar");
-    if (elapsedTime >= milestoneTime) {
-      milestoneDiv.classList.add("achieved");
+
+    if (elapsedTime >= milestoneTime && !milestoneDiv.classList.contains("notified")) {
+      milestoneDiv.classList.add("achieved", "notified");
       progressBar.style.width = "100%";
-    } else {
+      if (telegram) {
+        telegram.sendData(`🎉 Congratulations! ${milestones[index].message}`);
+      }
+    } else if (elapsedTime < milestoneTime) {
       const progress = Math.min((elapsedTime / milestoneTime) * 100, 100);
       progressBar.style.width = `${progress}%`;
     }
   });
+
+  checkAndShowMainButton();
+}
+
+// Show Telegram Main Button if milestones are achieved
+function checkAndShowMainButton() {
+  if (telegram) {
+    const milestonesAchieved = document.querySelectorAll(".milestone.achieved").length;
+    if (milestonesAchieved > 0) {
+      telegram.MainButton.show();
+    } else {
+      telegram.MainButton.hide();
+    }
+  }
 }
 
 // Attach event listener for restart button
