@@ -37,21 +37,25 @@ const resetBtn = document.getElementById("reset-btn");
 // Restore state on load
 function restoreState() {
   const savedStartTime = localStorage.getItem("quitTrackerStartTime");
-  if (savedStartTime) {
+  const currentTime = Date.now();
+
+  if (savedStartTime && !isNaN(savedStartTime) && savedStartTime < currentTime) {
     startTime = parseInt(savedStartTime, 10);
     console.log("Restored timer from storage:", savedStartTime);
-    startBtn.textContent = "Restart Timer"; // Show the restart option
-    startBtn.disabled = false; // Allow restarting
+
+    startBtn.textContent = "Restart Timer";
+    startBtn.disabled = false;
     resetBtn.disabled = false;
 
-    milestonesList.innerHTML = ""; // Ensure the milestones are displayed correctly
+    milestonesList.innerHTML = "";
     milestones.forEach(milestone => addMilestoneToList(milestone));
 
-    // Start updating the timer
     updateTimer();
     timerInterval = setInterval(updateTimer, 1000);
   } else {
-    // Reset buttons if there's no saved timer
+    console.log("No valid timer found. Resetting state.");
+    startTime = null;
+    localStorage.removeItem("quitTrackerStartTime");
     startBtn.textContent = "Start Timer";
     startBtn.disabled = false;
     resetBtn.disabled = true;
@@ -62,11 +66,13 @@ function restoreState() {
 function startTimer() {
   startTime = Date.now();
   console.log("Timer started at:", startTime);
-  localStorage.setItem("quitTrackerStartTime", startTime); // Save start time
+  localStorage.setItem("quitTrackerStartTime", startTime);
+
   startBtn.disabled = true;
+  startBtn.textContent = "Restart Timer";
   resetBtn.disabled = false;
 
-  milestonesList.innerHTML = ""; // Clear milestones list
+  milestonesList.innerHTML = "";
   milestones.forEach(milestone => addMilestoneToList(milestone));
 
   timerInterval = setInterval(updateTimer, 1000);
@@ -76,14 +82,15 @@ function startTimer() {
 function resetTimer() {
   clearInterval(timerInterval);
   startTime = null;
-  localStorage.removeItem("quitTrackerStartTime"); // Clear stored start time
+  localStorage.removeItem("quitTrackerStartTime");
+
   timerDisplay.innerHTML = "Time Since Quit: <span>0h 0m 0s</span>";
-  startBtn.textContent = "Start Timer"; // Reset button text
+  startBtn.textContent = "Start Timer";
   startBtn.disabled = false;
   resetBtn.disabled = true;
 
-  milestonesList.innerHTML = ""; // Clear milestones list
-  telegram.MainButton.hide(); // Hide Telegram button
+  milestonesList.innerHTML = "";
+  telegram.MainButton.hide();
 
   console.log("Timer reset successfully.");
 }
@@ -96,7 +103,6 @@ function updateTimer() {
   const seconds = elapsedTime % 60;
 
   timerDisplay.innerHTML = `Time Since Quit: <span>${hours}h ${minutes}m ${seconds}s</span>`;
-  console.log("Updated timer:", elapsedTime);
   updateMilestones(elapsedTime);
 }
 
@@ -105,21 +111,17 @@ function addMilestoneToList(milestone) {
   const milestoneDiv = document.createElement("div");
   milestoneDiv.classList.add("milestone");
 
-  // Progress Bar Container
   const progressContainer = document.createElement("div");
   progressContainer.classList.add("progress-bar-container");
 
-  // Progress Bar
   const progressBar = document.createElement("div");
   progressBar.classList.add("progress-bar");
-  progressBar.style.width = "0%"; // Initial width set to 0%
+  progressBar.style.width = "0%";
   progressContainer.appendChild(progressBar);
 
-  // Milestone Text
   const milestoneText = document.createElement("span");
   milestoneText.textContent = milestone.message;
 
-  // Append elements
   milestoneDiv.appendChild(progressContainer);
   milestoneDiv.appendChild(milestoneText);
   milestoneDiv.dataset.time = milestone.time;
@@ -144,7 +146,7 @@ function updateMilestones(elapsedTime) {
     }
   });
 
-  checkAndShowMainButton(); // Check if Telegram button should be shown
+  checkAndShowMainButton();
 }
 
 // Show Telegram Main Button if milestones are achieved
@@ -165,7 +167,6 @@ telegram.MainButton.onClick(() => {
     ? `🎉 You've achieved the following milestones:\n${milestoneTexts}`
     : "🚀 No milestones achieved yet. Keep going!";
 
-  // Send a message back to the Telegram chat
   telegram.sendData(message);
 });
 

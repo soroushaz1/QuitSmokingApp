@@ -1,10 +1,22 @@
-<div class="tracker-container">
-  <h1>Quit Smoking Tracker</h1>
-  <div id="timer-display">Time Since Quit: <span>0h 0m 0s</span></div>
-  <div class="buttons">
-    <button id="start-btn">Start Timer</button>
-    <button id="reset-btn" disabled>Reset Timer</button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quit Smoking Tracker</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="tracker-container">
+    <h1><span class="no-smoking-icon">🚭</span> Quit Smoking Tracker</h1>
+    <div id="timer-display">Time Since Quit: <span>0h 0m 0s</span></div>
+    <div class="buttons">
+      <button id="start-btn">Start Timer</button>
+      <button id="reset-btn" disabled>Reset Timer</button>
+    </div>
+    <h2>Milestones</h2>
+    <div id="milestones-list"></div>
   </div>
-  <h2>Milestones</h2>
-  <div id="milestones-list"></div>
-</div>
+  <script src="script.js"></script>
+</body>
+</html>
