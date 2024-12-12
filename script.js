@@ -44,28 +44,21 @@ function restoreState() {
 
   if (savedStartTime && !isNaN(savedStartTime) && savedStartTime < currentTime) {
     startTime = parseInt(savedStartTime, 10);
-    console.log("Restored timer from storage:", savedStartTime);
-
     milestonesList.innerHTML = "";
     milestones.forEach(milestone => addMilestoneToList(milestone));
-
     updateTimer();
     timerInterval = setInterval(updateTimer, 1000);
   } else {
-    console.log("No valid timer found. Starting fresh.");
-    startTimer(); // Automatically start timer on load
+    startTimer();
   }
 }
 
 // Start timer
 function startTimer() {
   startTime = Date.now();
-  console.log("Timer started at:", startTime);
   localStorage.setItem("quitTrackerStartTime", startTime);
-
   milestonesList.innerHTML = "";
   milestones.forEach(milestone => addMilestoneToList(milestone));
-
   timerInterval = setInterval(updateTimer, 1000);
 }
 
@@ -84,7 +77,6 @@ function updateTimer() {
   const hours = Math.floor(elapsedTime / 3600);
   const minutes = Math.floor((elapsedTime % 3600) / 60);
   const seconds = elapsedTime % 60;
-
   timerDisplay.innerHTML = `Time Since Quit: <span>${hours}h ${minutes}m ${seconds}s</span>`;
   updateMilestones(elapsedTime);
 }
@@ -119,7 +111,6 @@ function updateMilestones(elapsedTime) {
   milestonesElements.forEach((milestoneDiv, index) => {
     const milestoneTime = milestones[index].time;
     const progressBar = milestoneDiv.querySelector(".progress-bar");
-
     if (elapsedTime >= milestoneTime) {
       milestoneDiv.classList.add("achieved");
       progressBar.style.width = "100%";
@@ -128,35 +119,9 @@ function updateMilestones(elapsedTime) {
       progressBar.style.width = `${progress}%`;
     }
   });
-
-  checkAndShowMainButton();
 }
 
-// Show Telegram Main Button if milestones are achieved
-function checkAndShowMainButton() {
-  if (telegram) {
-    const milestonesAchieved = document.querySelectorAll(".milestone.achieved").length;
-    if (milestonesAchieved > 0) {
-      telegram.MainButton.show();
-    } else {
-      telegram.MainButton.hide();
-    }
-  }
-}
-
-// Handle Telegram Main Button click
-if (telegram) {
-  telegram.MainButton.onClick(() => {
-    const achievedMilestones = [...document.querySelectorAll('.milestone.achieved span')];
-    const milestoneTexts = achievedMilestones.map(m => m.textContent).join('\n');
-    const message = milestoneTexts
-      ? `🎉 You've achieved the following milestones:\n${milestoneTexts}`
-      : "🚀 No milestones achieved yet. Keep going!";
-
-    telegram.sendData(message);
-  });
-}
-
+// Attach event listener for restart button
 restartBtn.addEventListener("click", restartTimer);
 
 // Restore the timer state when the app loads
