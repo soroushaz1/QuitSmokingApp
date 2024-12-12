@@ -31,130 +31,76 @@ const milestones = [
 ];
 
 let startTime = null;
-let timerInterval = null;
 
 const timerDisplay = document.getElementById("timer-display");
 const milestonesList = document.getElementById("milestones-list");
 const restartBtn = document.getElementById("restart-btn");
 
-// Restore state on load
+// Restore state
 function restoreState() {
   const savedStartTime = localStorage.getItem("quitTrackerStartTime");
-  const currentTime = Date.now();
-
-  if (savedStartTime && !isNaN(savedStartTime) && savedStartTime < currentTime) {
+  if (savedStartTime) {
     startTime = parseInt(savedStartTime, 10);
-
-    milestonesList.innerHTML = "";
-    milestones.forEach(milestone => addMilestoneToList(milestone));
-
     updateTimer();
-    timerInterval = setInterval(updateTimer, 1000);
-  } else {
-    startTimer(); // Automatically start timer on load
+    setInterval(updateTimer, 1000);
   }
 }
 
-// Start timer
-function startTimer() {
-  startTime = Date.now();
-  localStorage.setItem("quitTrackerStartTime", startTime);
-
-  milestonesList.innerHTML = "";
-  milestones.forEach(milestone => addMilestoneToList(milestone));
-
-  timerInterval = setInterval(updateTimer, 1000);
-}
-
-// Restart timer with confirmation
-function restartTimer() {
-  const confirmReset = confirm("Are you sure you want to restart the timer?");
-  if (confirmReset) {
-    clearInterval(timerInterval);
-    startTimer();
+// Start or restart timer
+function startOrRestartTimer() {
+  if (confirm("Are you sure you want to reset the timer?")) {
+    startTime = Date.now();
+    localStorage.setItem("quitTrackerStartTime", startTime);
+    milestonesList.innerHTML = ""; // Clear milestones
+    milestones.forEach(addMilestoneToList); // Reinitialize milestones
+    updateTimer();
   }
 }
 
-// Update timer
+// Update timer and milestones
 function updateTimer() {
   const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
   const hours = Math.floor(elapsedTime / 3600);
   const minutes = Math.floor((elapsedTime % 3600) / 60);
   const seconds = elapsedTime % 60;
 
-  timerDisplay.innerHTML = `Time Since Quit: <span>${hours}h ${minutes}m ${seconds}s</span>`;
-  updateMilestones(elapsedTime);
+  timerDisplay.textContent = `Time Since Quit: ${hours}h ${minutes}m ${seconds}s`;
+
+  milestones.forEach((milestone, index) => {
+    const progressBar = document.querySelectorAll(".progress-bar")[index];
+    if (elapsedTime >= milestone.time) {
+      progressBar.style.width = "100%";
+    } else {
+      const progress = Math.min((elapsedTime / milestone.time) * 100, 100);
+      progressBar.style.width = `${progress}%`;
+    }
+  });
 }
 
-// Add milestones to the list
+// Add milestone to list
 function addMilestoneToList(milestone) {
   const milestoneDiv = document.createElement("div");
-  milestoneDiv.classList.add("milestone");
+  milestoneDiv.className = "milestone";
 
   const progressContainer = document.createElement("div");
-  progressContainer.classList.add("progress-bar-container");
+  progressContainer.className = "progress-bar-container";
 
   const progressBar = document.createElement("div");
-  progressBar.classList.add("progress-bar");
-  progressBar.style.width = "0%";
+  progressBar.className = "progress-bar";
+
   progressContainer.appendChild(progressBar);
+  milestoneDiv.appendChild(progressContainer);
 
   const milestoneText = document.createElement("span");
   milestoneText.textContent = milestone.message;
-
-  milestoneDiv.appendChild(progressContainer);
   milestoneDiv.appendChild(milestoneText);
-  milestoneDiv.dataset.time = milestone.time;
 
   milestonesList.appendChild(milestoneDiv);
 }
 
-// Update milestones dynamically
-function updateMilestones(elapsedTime) {
-  const milestonesElements = milestonesList.querySelectorAll(".milestone");
+// Event listeners
+restartBtn.addEventListener("click", startOrRestartTimer);
 
-  milestonesElements.forEach((milestoneDiv, index) => {
-    const milestoneTime = milestones[index].time;
-    const progressBar = milestoneDiv.querySelector(".progress-bar");
-
-    if (elapsedTime >= milestoneTime) {
-      milestoneDiv.classList.add("achieved");
-      progressBar.style.width = "100%";
-    } else {
-      const progress = Math.min((elapsedTime / milestoneTime) * 100, 100);
-      progressBar.style.width = `${progress}%`;
-    }
-  });
-
-  checkAndShowMainButton();
-}
-
-// Show Telegram Main Button if milestones are achieved
-function checkAndShowMainButton() {
-  if (telegram) {
-    const milestonesAchieved = document.querySelectorAll(".milestone.achieved").length;
-    if (milestonesAchieved > 0) {
-      telegram.MainButton.show();
-    } else {
-      telegram.MainButton.hide();
-    }
-  }
-}
-
-// Handle Telegram Main Button click
-if (telegram) {
-  telegram.MainButton.onClick(() => {
-    const achievedMilestones = [...document.querySelectorAll('.milestone.achieved span')];
-    const milestoneTexts = achievedMilestones.map(m => m.textContent).join('\n');
-    const message = milestoneTexts
-      ? `🎉 You've achieved the following milestones:\n${milestoneTexts}`
-      : "🚀 No milestones achieved yet. Keep going!";
-
-    telegram.sendData(message);
-  });
-}
-
-restartBtn.addEventListener("click", restartTimer);
-
-// Restore the timer state when the app loads
+// Initialize app
 restoreState();
+milestones.forEach(addMilestoneToList);
