@@ -146,6 +146,7 @@ function updateMilestones(elapsedTime) {
 // Send a message to Telegram
 function sendTelegramMessage(message) {
   if (telegram) {
+    console.log("Sending message to Telegram:", message);
     telegram.sendData(message);
   } else {
     console.warn("Telegram WebApp is not available. Cannot send milestone message.");
