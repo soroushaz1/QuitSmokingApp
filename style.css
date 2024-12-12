@@ -1,0 +1,103 @@
+/* style.css */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f7f9fc;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: #333;
+  }
+  
+  .container {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px 30px;
+    width: 90%;
+    max-width: 500px;
+    text-align: center;
+  }
+  
+  h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .timer p {
+    font-size: 18px;
+    margin: 20px 0;
+  }
+  
+  .button-group button {
+    font-size: 16px;
+    margin: 10px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  #start-btn {
+    background-color: #28a745;
+    color: white;
+  }
+  
+  #start-btn:hover {
+    background-color: #218838;
+  }
+  
+  #reset-btn {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  #reset-btn:hover {
+    background-color: #c82333;
+  }
+  
+  #reset-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+  
+  h2 {
+    margin-top: 30px;
+    font-size: 20px;
+    color: #444;
+  }
+  
+  #milestones-list {
+    margin-top: 20px;
+  }
+  
+  .milestone {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    margin: 10px 0;
+  }
+  
+  .progress-bar-container {
+    width: 100%;
+    background-color: #e9ecef;
+    height: 10px;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 5px; /* Added spacing below the bar */
+  }
+  
+  .progress-bar {
+    height: 100%;
+    width: 0%;
+    background-color: #007bff;
+    transition: width 0.3s ease-in-out;
+  }
+  
+  .milestone.achieved .progress-bar {
+    background-color: #28a745; /* Change color when achieved */
+  }
+  
