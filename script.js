@@ -44,7 +44,6 @@ function restoreState() {
 
   if (savedStartTime && !isNaN(savedStartTime) && savedStartTime < currentTime) {
     startTime = parseInt(savedStartTime, 10);
-    console.log("Restored timer from storage:", savedStartTime);
 
     milestonesList.innerHTML = "";
     milestones.forEach(milestone => addMilestoneToList(milestone));
@@ -52,7 +51,6 @@ function restoreState() {
     updateTimer();
     timerInterval = setInterval(updateTimer, 1000);
   } else {
-    console.log("No valid timer found. Starting fresh.");
     startTimer(); // Automatically start timer on load
   }
 }
@@ -60,7 +58,6 @@ function restoreState() {
 // Start timer
 function startTimer() {
   startTime = Date.now();
-  console.log("Timer started at:", startTime);
   localStorage.setItem("quitTrackerStartTime", startTime);
 
   milestonesList.innerHTML = "";
@@ -69,10 +66,13 @@ function startTimer() {
   timerInterval = setInterval(updateTimer, 1000);
 }
 
-// Restart timer
+// Restart timer with confirmation
 function restartTimer() {
-  clearInterval(timerInterval);
-  startTimer();
+  const confirmReset = confirm("Are you sure you want to restart the timer?");
+  if (confirmReset) {
+    clearInterval(timerInterval);
+    startTimer();
+  }
 }
 
 // Update timer
