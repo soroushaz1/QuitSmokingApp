@@ -1,12 +1,16 @@
-// Initialize Telegram Web App
-const telegram = window.Telegram.WebApp;
+// Initialize Telegram Web App (fallback for browser environment)
+const telegram = window.Telegram ? window.Telegram.WebApp : null;
 
-// Expand Web App to full screen
-telegram.expand();
+// Check if running inside Telegram Web App
+if (telegram) {
+  telegram.expand();
 
-// Set up the main button
-telegram.MainButton.text = "Share Milestones";
-telegram.MainButton.setParams({ color: "#28a745", text_color: "#ffffff" });
+  // Set up the main button
+  telegram.MainButton.text = "Share Milestones";
+  telegram.MainButton.setParams({ color: "#28a745", text_color: "#ffffff" });
+} else {
+  console.warn("Telegram WebApp is not available. Running in fallback mode.");
+}
 
 // Milestones data
 const milestones = [
@@ -90,7 +94,7 @@ function resetTimer() {
   resetBtn.disabled = true;
 
   milestonesList.innerHTML = "";
-  telegram.MainButton.hide();
+  if (telegram) telegram.MainButton.hide();
 
   console.log("Timer reset successfully.");
 }
@@ -151,24 +155,28 @@ function updateMilestones(elapsedTime) {
 
 // Show Telegram Main Button if milestones are achieved
 function checkAndShowMainButton() {
-  const milestonesAchieved = document.querySelectorAll(".milestone.achieved").length;
-  if (milestonesAchieved > 0) {
-    telegram.MainButton.show();
-  } else {
-    telegram.MainButton.hide();
+  if (telegram) {
+    const milestonesAchieved = document.querySelectorAll(".milestone.achieved").length;
+    if (milestonesAchieved > 0) {
+      telegram.MainButton.show();
+    } else {
+      telegram.MainButton.hide();
+    }
   }
 }
 
 // Handle Telegram Main Button click
-telegram.MainButton.onClick(() => {
-  const achievedMilestones = [...document.querySelectorAll('.milestone.achieved span')];
-  const milestoneTexts = achievedMilestones.map(m => m.textContent).join('\n');
-  const message = milestoneTexts
-    ? `🎉 You've achieved the following milestones:\n${milestoneTexts}`
-    : "🚀 No milestones achieved yet. Keep going!";
+if (telegram) {
+  telegram.MainButton.onClick(() => {
+    const achievedMilestones = [...document.querySelectorAll('.milestone.achieved span')];
+    const milestoneTexts = achievedMilestones.map(m => m.textContent).join('\n');
+    const message = milestoneTexts
+      ? `🎉 You've achieved the following milestones:\n${milestoneTexts}`
+      : "🚀 No milestones achieved yet. Keep going!";
 
-  telegram.sendData(message);
-});
+    telegram.sendData(message);
+  });
+}
 
 startBtn.addEventListener("click", startTimer);
 resetBtn.addEventListener("click", resetTimer);
