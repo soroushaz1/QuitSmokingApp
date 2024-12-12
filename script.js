@@ -39,17 +39,29 @@ function restoreState() {
   const savedStartTime = localStorage.getItem("quitTrackerStartTime");
   if (savedStartTime) {
     startTime = parseInt(savedStartTime, 10);
+    console.log("Restored timer from storage:", savedStartTime);
     startBtn.textContent = "Restart Timer"; // Show the restart option
     startBtn.disabled = false; // Allow restarting
     resetBtn.disabled = false;
+
+    milestonesList.innerHTML = ""; // Ensure the milestones are displayed correctly
     milestones.forEach(milestone => addMilestoneToList(milestone));
+
+    // Start updating the timer
+    updateTimer();
     timerInterval = setInterval(updateTimer, 1000);
+  } else {
+    // Reset buttons if there's no saved timer
+    startBtn.textContent = "Start Timer";
+    startBtn.disabled = false;
+    resetBtn.disabled = true;
   }
 }
 
 // Start timer
 function startTimer() {
   startTime = Date.now();
+  console.log("Timer started at:", startTime);
   localStorage.setItem("quitTrackerStartTime", startTime); // Save start time
   startBtn.disabled = true;
   resetBtn.disabled = false;
@@ -72,6 +84,8 @@ function resetTimer() {
 
   milestonesList.innerHTML = ""; // Clear milestones list
   telegram.MainButton.hide(); // Hide Telegram button
+
+  console.log("Timer reset successfully.");
 }
 
 // Update timer
@@ -82,6 +96,7 @@ function updateTimer() {
   const seconds = elapsedTime % 60;
 
   timerDisplay.innerHTML = `Time Since Quit: <span>${hours}h ${minutes}m ${seconds}s</span>`;
+  console.log("Updated timer:", elapsedTime);
   updateMilestones(elapsedTime);
 }
 
