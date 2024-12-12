@@ -1,7 +1,7 @@
-// Initialize Telegram Web App (fallback for browser environment)
+// Check if Telegram Web App is available
 const telegram = window.Telegram ? window.Telegram.WebApp : null;
 
-// Check if running inside Telegram Web App
+// Initialize Telegram Web App only if available
 if (telegram) {
   telegram.expand();
 
@@ -35,8 +35,7 @@ let timerInterval = null;
 
 const timerDisplay = document.getElementById("timer-display");
 const milestonesList = document.getElementById("milestones-list");
-const startBtn = document.getElementById("start-btn");
-const resetBtn = document.getElementById("reset-btn");
+const restartBtn = document.getElementById("restart-btn");
 
 // Restore state on load
 function restoreState() {
@@ -47,22 +46,14 @@ function restoreState() {
     startTime = parseInt(savedStartTime, 10);
     console.log("Restored timer from storage:", savedStartTime);
 
-    startBtn.textContent = "Restart Timer";
-    startBtn.disabled = false;
-    resetBtn.disabled = false;
-
     milestonesList.innerHTML = "";
     milestones.forEach(milestone => addMilestoneToList(milestone));
 
     updateTimer();
     timerInterval = setInterval(updateTimer, 1000);
   } else {
-    console.log("No valid timer found. Resetting state.");
-    startTime = null;
-    localStorage.removeItem("quitTrackerStartTime");
-    startBtn.textContent = "Start Timer";
-    startBtn.disabled = false;
-    resetBtn.disabled = true;
+    console.log("No valid timer found. Starting fresh.");
+    startTimer(); // Automatically start timer on load
   }
 }
 
@@ -72,31 +63,16 @@ function startTimer() {
   console.log("Timer started at:", startTime);
   localStorage.setItem("quitTrackerStartTime", startTime);
 
-  startBtn.disabled = true;
-  startBtn.textContent = "Restart Timer";
-  resetBtn.disabled = false;
-
   milestonesList.innerHTML = "";
   milestones.forEach(milestone => addMilestoneToList(milestone));
 
   timerInterval = setInterval(updateTimer, 1000);
 }
 
-// Reset timer
-function resetTimer() {
+// Restart timer
+function restartTimer() {
   clearInterval(timerInterval);
-  startTime = null;
-  localStorage.removeItem("quitTrackerStartTime");
-
-  timerDisplay.innerHTML = "Time Since Quit: <span>0h 0m 0s</span>";
-  startBtn.textContent = "Start Timer";
-  startBtn.disabled = false;
-  resetBtn.disabled = true;
-
-  milestonesList.innerHTML = "";
-  if (telegram) telegram.MainButton.hide();
-
-  console.log("Timer reset successfully.");
+  startTimer();
 }
 
 // Update timer
@@ -178,8 +154,7 @@ if (telegram) {
   });
 }
 
-startBtn.addEventListener("click", startTimer);
-resetBtn.addEventListener("click", resetTimer);
+restartBtn.addEventListener("click", restartTimer);
 
 // Restore the timer state when the app loads
 restoreState();

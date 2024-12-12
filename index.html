@@ -7,15 +7,12 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="tracker-container">
-    <h1><span class="no-smoking-icon">🚭</span> Quit Smoking Tracker</h1>
+  <div class="container">
+    <h1>🚭 Quit Smoking Tracker</h1>
     <div id="timer-display">Time Since Quit: <span>0h 0m 0s</span></div>
-    <div class="buttons">
-      <button id="start-btn">Start Timer</button>
-      <button id="reset-btn" disabled>Reset Timer</button>
-    </div>
+    <button id="restart-btn" class="restart-btn">Restart Timer</button>
     <h2>Milestones</h2>
-    <div id="milestones-list"></div>
+    <div id="milestones-list" class="milestones-list"></div>
   </div>
   <script src="script.js"></script>
 </body>
