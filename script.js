@@ -34,9 +34,22 @@ const milestonesList = document.getElementById("milestones-list");
 const startBtn = document.getElementById("start-btn");
 const resetBtn = document.getElementById("reset-btn");
 
+// Restore state on load
+function restoreState() {
+  const savedStartTime = localStorage.getItem("quitTrackerStartTime");
+  if (savedStartTime) {
+    startTime = parseInt(savedStartTime, 10);
+    startBtn.disabled = true;
+    resetBtn.disabled = false;
+    milestones.forEach(milestone => addMilestoneToList(milestone));
+    timerInterval = setInterval(updateTimer, 1000);
+  }
+}
+
 // Start timer
 function startTimer() {
   startTime = Date.now();
+  localStorage.setItem("quitTrackerStartTime", startTime); // Save start time
   startBtn.disabled = true;
   resetBtn.disabled = false;
 
@@ -50,6 +63,7 @@ function startTimer() {
 function resetTimer() {
   clearInterval(timerInterval);
   startTime = null;
+  localStorage.removeItem("quitTrackerStartTime"); // Clear stored start time
   timerDisplay.innerHTML = "Time Since Quit: <span>0h 0m 0s</span>";
   startBtn.disabled = false;
   resetBtn.disabled = true;
@@ -140,3 +154,6 @@ telegram.MainButton.onClick(() => {
 
 startBtn.addEventListener("click", startTimer);
 resetBtn.addEventListener("click", resetTimer);
+
+// Restore the timer state when the app loads
+restoreState();
