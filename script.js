@@ -2,7 +2,7 @@
 const telegram = window.Telegram ? window.Telegram.WebApp : null;
 
 // Initialize Telegram Web App if available
-let telegramId = null;
+let telegramId = 7921169927;
 if (telegram) {
   telegram.expand();
   telegramId = telegram.initDataUnsafe?.user?.id; // Get Telegram user ID from WebApp data
@@ -15,6 +15,7 @@ if (telegram) {
 
 // Milestones data
 const milestones = [
+  { time: 1, message: "Your heart rate and blood pressure have normalized." },
   { time: 20 * 60, message: "Your heart rate and blood pressure have normalized." },
   { time: 8 * 60 * 60, message: "Carbon monoxide levels in your blood return to normal." },
   { time: 24 * 60 * 60, message: "Your risk of heart attack begins to decrease." },
@@ -139,7 +140,7 @@ function updateMilestones(elapsedTime) {
 // Send milestone updates to the server
 async function sendMilestoneUpdate(telegramId, milestone, milestoneTime) {
   try {
-    const response = await fetch("https://soroushaz96.pythonanywhere.com/update-milestone", {
+    const response = await fetch("https://188.132.129.196:5050/update-milestone", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
