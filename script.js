@@ -1,17 +1,6 @@
 // Check if Telegram Web App is available
 const telegram = window.Telegram ? window.Telegram.WebApp : null;
 
-// Initialize Telegram Web App only if available
-if (telegram) {
-  telegram.expand();
-
-  // Set up the main button
-  telegram.MainButton.text = "Share Milestones";
-  telegram.MainButton.setParams({ color: "#28a745", text_color: "#ffffff" });
-} else {
-  console.warn("Telegram WebApp is not available. Running in fallback mode.");
-}
-
 // Milestones data
 const milestones = [
   { time: 20 * 60, message: "Your heart rate and blood pressure have normalized." },
@@ -22,17 +11,10 @@ const milestones = [
   { time: 7 * 24 * 60 * 60, message: "Your sleep patterns and energy levels begin to normalize." },
   { time: 14 * 24 * 60 * 60, message: "Circulation improves, making physical activities easier." },
   { time: 30 * 24 * 60 * 60, message: "Lung function improves by up to 30%." },
-  { time: 90 * 24 * 60 * 60, message: "Cilia in your lungs recover, reducing infection risks." },
-  { time: 180 * 24 * 60 * 60, message: "Your risk of lung infections is halved." },
-  { time: 365 * 24 * 60 * 60, message: "Your risk of coronary heart disease is halved." },
-  { time: 5 * 365 * 24 * 60 * 60, message: "Your stroke risk drops to that of a nonsmoker." },
-  { time: 10 * 365 * 24 * 60 * 60, message: "Your lung cancer death risk is cut in half." },
-  { time: 15 * 365 * 24 * 60 * 60, message: "Your coronary heart disease risk is that of a nonsmoker." },
 ];
 
 let startTime = null;
 let timerInterval = null;
-let sentMilestones = new Set(); // Track sent milestones
 
 const timerDisplay = document.getElementById("timer-display");
 const milestonesList = document.getElementById("milestones-list");
@@ -41,41 +23,27 @@ const restartBtn = document.getElementById("restart-btn");
 // Restore state on load
 function restoreState() {
   const savedStartTime = localStorage.getItem("quitTrackerStartTime");
-  const currentTime = Date.now();
-
-  if (savedStartTime && !isNaN(savedStartTime) && savedStartTime < currentTime) {
+  if (savedStartTime) {
     startTime = parseInt(savedStartTime, 10);
-    console.log("Restored timer from storage:", savedStartTime);
-
-    milestonesList.innerHTML = "";
     milestones.forEach(milestone => addMilestoneToList(milestone));
-
-    updateTimer();
     timerInterval = setInterval(updateTimer, 1000);
   } else {
-    console.log("No valid timer found. Starting fresh.");
-    startTimer(); // Automatically start timer on load
+    startTimer();
   }
 }
 
 // Start timer
 function startTimer() {
   startTime = Date.now();
-  console.log("Timer started at:", startTime);
   localStorage.setItem("quitTrackerStartTime", startTime);
-
-  milestonesList.innerHTML = "";
   milestones.forEach(milestone => addMilestoneToList(milestone));
-
   timerInterval = setInterval(updateTimer, 1000);
 }
 
 // Restart timer
 function restartTimer() {
-  const confirmReset = confirm("Are you sure you want to restart the timer?");
-  if (confirmReset) {
+  if (confirm("Are you sure you want to restart the timer?")) {
     clearInterval(timerInterval);
-    sentMilestones.clear(); // Reset milestones
     startTimer();
   }
 }
@@ -83,11 +51,7 @@ function restartTimer() {
 // Update timer
 function updateTimer() {
   const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
-  const hours = Math.floor(elapsedTime / 3600);
-  const minutes = Math.floor((elapsedTime % 3600) / 60);
-  const seconds = elapsedTime % 60;
-
-  timerDisplay.innerHTML = `Time Since Quit: <span>${hours}h ${minutes}m ${seconds}s</span>`;
+  timerDisplay.innerHTML = `Time Since Quit: ${elapsedTime}s`;
   updateMilestones(elapsedTime);
 }
 
@@ -95,96 +59,31 @@ function updateTimer() {
 function addMilestoneToList(milestone) {
   const milestoneDiv = document.createElement("div");
   milestoneDiv.classList.add("milestone");
-
-  const progressContainer = document.createElement("div");
-  progressContainer.classList.add("progress-bar-container");
-
-  const progressBar = document.createElement("div");
-  progressBar.classList.add("progress-bar");
-  progressBar.style.width = "0%";
-  progressContainer.appendChild(progressBar);
-
-  const milestoneText = document.createElement("span");
-  milestoneText.textContent = milestone.message;
-
-  milestoneDiv.appendChild(progressContainer);
-  milestoneDiv.appendChild(milestoneText);
-  milestoneDiv.dataset.time = milestone.time;
-
+  milestoneDiv.textContent = milestone.message;
   milestonesList.appendChild(milestoneDiv);
 }
 
-function sendMessage(){
-  // Send congratulatory message to Telegram
-  const milestoneMessage = `🎉 Congratulations! You've achieved a milestone`;
-  sendTelegramMessage(milestoneMessage);
-}
-
-// Update milestones dynamically
+// Update milestones
 function updateMilestones(elapsedTime) {
-  const milestonesElements = milestonesList.querySelectorAll(".milestone");
-
-  milestonesElements.forEach((milestoneDiv, index) => {
-    const milestoneTime = milestones[index].time;
-    const progressBar = milestoneDiv.querySelector(".progress-bar");
-
-    if (elapsedTime >= milestoneTime) {
-      milestoneDiv.classList.add("achieved");
-      progressBar.style.width = "100%";
-
-      // Check if this milestone was already congratulated
-      if (!sentMilestones.has(index)) {
-        sentMilestones.add(index);
-
-        // Send congratulatory message to Telegram
-        const milestoneMessage = `🎉 Congratulations! You've achieved a milestone: ${milestones[index].message}`;
-        sendTelegramMessage(milestoneMessage);
-      }
-    } else {
-      const progress = Math.min((elapsedTime / milestoneTime) * 100, 100);
-      progressBar.style.width = `${progress}%`;
+  milestones.forEach(milestone => {
+    if (elapsedTime >= milestone.time) {
+      sendMilestoneUpdate(milestone.message, elapsedTime);
     }
   });
-
-  checkAndShowMainButton();
 }
 
-// Send a message to Telegram
-function sendTelegramMessage(message) {
-  if (telegram) {
-    console.log("Sending message to Telegram:", message);
-    telegram.sendData(message);
-  } else {
-    console.warn("Telegram WebApp is not available. Cannot send milestone message.");
-  }
-}
-
-// Show Telegram Main Button if milestones are achieved
-function checkAndShowMainButton() {
-  if (telegram) {
-    const milestonesAchieved = document.querySelectorAll(".milestone.achieved").length;
-    if (milestonesAchieved > 0) {
-      telegram.MainButton.show();
-    } else {
-      telegram.MainButton.hide();
-    }
-  }
-}
-
-// Handle Telegram Main Button click
-if (telegram) {
-  telegram.MainButton.onClick(() => {
-    const achievedMilestones = [...document.querySelectorAll(".milestone.achieved span")];
-    const milestoneTexts = achievedMilestones.map(m => m.textContent).join("\n");
-    const message = milestoneTexts
-      ? `🎉 You've achieved the following milestones:\n${milestoneTexts}`
-      : "🚀 No milestones achieved yet. Keep going!";
-
-    telegram.sendData(message);
+// Send milestone update to the backend
+function sendMilestoneUpdate(milestone, elapsedTime) {
+  fetch("https://soroushaz96.pythonanywhere.com/update-milestone", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      telegramId: telegram?.initDataUnsafe?.user?.id,
+      milestone: milestone,
+      milestoneTime: elapsedTime,
+    }),
   });
 }
 
 restartBtn.addEventListener("click", restartTimer);
-
-// Restore the timer state when the app loads
 restoreState();
