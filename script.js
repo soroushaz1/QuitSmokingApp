@@ -114,6 +114,12 @@ function addMilestoneToList(milestone) {
   milestonesList.appendChild(milestoneDiv);
 }
 
+function sendMessage(){
+  // Send congratulatory message to Telegram
+  const milestoneMessage = `🎉 Congratulations! You've achieved a milestone`;
+  sendTelegramMessage(milestoneMessage);
+}
+
 // Update milestones dynamically
 function updateMilestones(elapsedTime) {
   const milestonesElements = milestonesList.querySelectorAll(".milestone");
