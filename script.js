@@ -1,3 +1,15 @@
+// Check if Telegram Web App is available
+const telegram = window.Telegram ? window.Telegram.WebApp : null;
+
+// Initialize Telegram Web App if available
+if (telegram) {
+  telegram.expand();
+
+  // Set up the main button
+  telegram.MainButton.text = "Share Milestones";
+  telegram.MainButton.setParams({ color: "#28a745", text_color: "#ffffff" });
+}
+
 // Milestones data
 const milestones = [
   { time: 20 * 60, message: "Your heart rate and blood pressure have normalized." },
@@ -106,6 +118,11 @@ function updateMilestones(elapsedTime) {
     if (elapsedTime >= milestoneTime) {
       milestoneDiv.classList.add("achieved");
       progressBar.style.width = "100%";
+
+      if (telegram) {
+        sendTelegramMessage(`🎉 Congratulations! You've achieved the milestone: "${milestones[index].message}"`);
+      }
+
       sendMilestoneUpdate("telegramId", milestones[index].message, elapsedTime);
     } else {
       const progress = Math.min((elapsedTime / milestoneTime) * 100, 100);
@@ -137,6 +154,16 @@ async function sendMilestoneUpdate(telegramId, milestone, milestoneTime) {
     console.log("Milestone update successful:", data);
   } catch (error) {
     console.error("Error sending milestone update:", error);
+  }
+}
+
+// Send Telegram messages
+function sendTelegramMessage(message) {
+  if (telegram) {
+    telegram.MainButton.onClick(() => {
+      telegram.sendData(message);
+    });
+    telegram.MainButton.show();
   }
 }
 
