@@ -141,7 +141,7 @@ function updateMilestones(elapsedTime) {
 // Send milestone updates to the server
 async function sendMilestoneUpdate(telegramId, milestone, milestoneTime) {
   try {
-    const response = await fetch("http://193.149.187.213:5050/updatemilestone", {
+    const response = await fetch("https://193.149.187.213:5050/updatemilestone", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
