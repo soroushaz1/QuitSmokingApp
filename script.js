@@ -16,19 +16,49 @@ const milestones = [
   { time: 15 * 365 * 24 * 60 * 60, message: "Your coronary heart disease risk is that of a nonsmoker." },
 ];
 
-// Timer and UI elements
 let startTime = null;
 let timerInterval = null;
+
 const timerDisplay = document.getElementById("timer-display");
 const milestonesList = document.getElementById("milestones-list");
+const restartBtn = document.getElementById("restart-btn");
+
+// Restore state on load
+function restoreState() {
+  const savedStartTime = localStorage.getItem("quitTrackerStartTime");
+  const currentTime = Date.now();
+
+  if (savedStartTime && !isNaN(savedStartTime) && savedStartTime < currentTime) {
+    startTime = parseInt(savedStartTime, 10);
+
+    milestonesList.innerHTML = "";
+    milestones.forEach((milestone) => addMilestoneToList(milestone));
+
+    updateTimer();
+    timerInterval = setInterval(updateTimer, 1000);
+  } else {
+    startTimer(); // Automatically start timer on load
+  }
+}
 
 // Start timer
 function startTimer() {
   startTime = Date.now();
   localStorage.setItem("quitTrackerStartTime", startTime);
-  initializeMilestones(); // Reset milestone list
-  updateTimer();
+
+  milestonesList.innerHTML = "";
+  milestones.forEach((milestone) => addMilestoneToList(milestone));
+
   timerInterval = setInterval(updateTimer, 1000);
+}
+
+// Restart timer with confirmation
+function restartTimer() {
+  const confirmReset = confirm("Are you sure you want to restart the timer?");
+  if (confirmReset) {
+    clearInterval(timerInterval);
+    startTimer();
+  }
 }
 
 // Update timer
@@ -38,22 +68,54 @@ function updateTimer() {
   const minutes = Math.floor((elapsedTime % 3600) / 60);
   const seconds = elapsedTime % 60;
 
-  timerDisplay.innerHTML = `Time Since Quit: ${hours}h ${minutes}m ${seconds}s`;
+  timerDisplay.innerHTML = `Time Since Quit: <span>${hours}h ${minutes}m ${seconds}s</span>`;
+  updateMilestones(elapsedTime);
+}
 
-  milestones.forEach((milestone, index) => {
-    if (elapsedTime >= milestone.time) {
-      const milestoneDiv = document.querySelector(`#milestone-${index}`);
-      if (milestoneDiv && !milestoneDiv.classList.contains("achieved")) {
-        milestoneDiv.classList.add("achieved");
-        milestoneDiv.querySelector(".progress-bar").style.width = "100%";
-        sendMilestoneUpdate(milestone.message, elapsedTime);
-      }
+// Add milestones to the list
+function addMilestoneToList(milestone) {
+  const milestoneDiv = document.createElement("div");
+  milestoneDiv.classList.add("milestone");
+
+  const progressContainer = document.createElement("div");
+  progressContainer.classList.add("progress-bar-container");
+
+  const progressBar = document.createElement("div");
+  progressBar.classList.add("progress-bar");
+  progressBar.style.width = "0%";
+  progressContainer.appendChild(progressBar);
+
+  const milestoneText = document.createElement("span");
+  milestoneText.textContent = milestone.message;
+
+  milestoneDiv.appendChild(progressContainer);
+  milestoneDiv.appendChild(milestoneText);
+  milestoneDiv.dataset.time = milestone.time;
+
+  milestonesList.appendChild(milestoneDiv);
+}
+
+// Update milestones dynamically
+function updateMilestones(elapsedTime) {
+  const milestonesElements = milestonesList.querySelectorAll(".milestone");
+
+  milestonesElements.forEach((milestoneDiv, index) => {
+    const milestoneTime = milestones[index].time;
+    const progressBar = milestoneDiv.querySelector(".progress-bar");
+
+    if (elapsedTime >= milestoneTime) {
+      milestoneDiv.classList.add("achieved");
+      progressBar.style.width = "100%";
+      sendMilestoneUpdate("telegramId", milestones[index].message, elapsedTime);
+    } else {
+      const progress = Math.min((elapsedTime / milestoneTime) * 100, 100);
+      progressBar.style.width = `${progress}%`;
     }
   });
 }
 
 // Send milestone updates to the server
-async function sendMilestoneUpdate(milestone, elapsedTime) {
+async function sendMilestoneUpdate(telegramId, milestone, milestoneTime) {
   try {
     const response = await fetch("https://soroushaz96.pythonanywhere.com/update-milestone", {
       method: "POST",
@@ -61,52 +123,24 @@ async function sendMilestoneUpdate(milestone, elapsedTime) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        telegramId: "YOUR_TELEGRAM_ID", // Replace with dynamic user ID if available
+        telegramId: telegramId,
         milestone: milestone,
-        milestoneTime: elapsedTime,
+        milestoneTime: milestoneTime,
       }),
     });
 
-    if (response.ok) {
-      console.log("Milestone update sent successfully.");
-    } else {
-      console.error("Failed to send milestone update:", response.statusText);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
     }
+
+    const data = await response.json();
+    console.log("Milestone update successful:", data);
   } catch (error) {
     console.error("Error sending milestone update:", error);
   }
 }
 
-// Initialize milestones UI
-function initializeMilestones() {
-  milestonesList.innerHTML = "";
-  milestones.forEach((milestone, index) => {
-    const milestoneDiv = document.createElement("div");
-    milestoneDiv.classList.add("milestone");
-    milestoneDiv.id = `milestone-${index}`;
-    milestoneDiv.innerHTML = `
-      <div class="progress-bar-container">
-        <div class="progress-bar" style="width: 0%;"></div>
-      </div>
-      <span>${milestone.message}</span>
-    `;
-    milestonesList.appendChild(milestoneDiv);
-  });
-}
+restartBtn.addEventListener("click", restartTimer);
 
-// Restore timer state on page load
-function restoreState() {
-  const savedStartTime = localStorage.getItem("quitTrackerStartTime");
-  if (savedStartTime) {
-    startTime = parseInt(savedStartTime, 10);
-    initializeMilestones();
-    updateTimer();
-    timerInterval = setInterval(updateTimer, 1000);
-  } else {
-    startTimer();
-  }
-}
-
-// Initialize the app
-initializeMilestones();
+// Restore the timer state when the app loads
 restoreState();
