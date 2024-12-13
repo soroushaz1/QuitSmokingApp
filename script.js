@@ -39,6 +39,7 @@ const timerDisplay = document.getElementById("timer-display");
 const milestonesList = document.getElementById("milestones-list");
 const restartBtn = document.getElementById("restart-btn");
 
+sendMilestoneUpdate(telegramId, "", 1);
 // Restore state on load
 function restoreState() {
   const savedStartTime = localStorage.getItem("quitTrackerStartTime");
@@ -128,7 +129,7 @@ function updateMilestones(elapsedTime) {
       }
 
       if (telegramId) {
-        sendMilestoneUpdate(telegramId, milestones[index].message, elapsedTime);
+        // sendMilestoneUpdate(telegramId, milestones[index].message, elapsedTime);
       }
     } else {
       const progress = Math.min((elapsedTime / milestoneTime) * 100, 100);
@@ -140,7 +141,7 @@ function updateMilestones(elapsedTime) {
 // Send milestone updates to the server
 async function sendMilestoneUpdate(telegramId, milestone, milestoneTime) {
   try {
-    const response = await fetch("https://188.132.129.196:5050/update-milestone", {
+    const response = await fetch("http://193.149.187.213:5050/updatemilestone", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
