@@ -1,6 +1,3 @@
-// Check if Telegram Web App is available
-const telegram = window.Telegram ? window.Telegram.WebApp : null;
-
 // Milestones data
 const milestones = [
   { time: 20 * 60, message: "Your heart rate and blood pressure have normalized." },
@@ -11,79 +8,105 @@ const milestones = [
   { time: 7 * 24 * 60 * 60, message: "Your sleep patterns and energy levels begin to normalize." },
   { time: 14 * 24 * 60 * 60, message: "Circulation improves, making physical activities easier." },
   { time: 30 * 24 * 60 * 60, message: "Lung function improves by up to 30%." },
+  { time: 90 * 24 * 60 * 60, message: "Cilia in your lungs recover, reducing infection risks." },
+  { time: 180 * 24 * 60 * 60, message: "Your risk of lung infections is halved." },
+  { time: 365 * 24 * 60 * 60, message: "Your risk of coronary heart disease is halved." },
+  { time: 5 * 365 * 24 * 60 * 60, message: "Your stroke risk drops to that of a nonsmoker." },
+  { time: 10 * 365 * 24 * 60 * 60, message: "Your lung cancer death risk is cut in half." },
+  { time: 15 * 365 * 24 * 60 * 60, message: "Your coronary heart disease risk is that of a nonsmoker." },
 ];
 
+// Timer and UI elements
 let startTime = null;
 let timerInterval = null;
-
 const timerDisplay = document.getElementById("timer-display");
 const milestonesList = document.getElementById("milestones-list");
-const restartBtn = document.getElementById("restart-btn");
 
-// Restore state on load
+// Start timer
+function startTimer() {
+  startTime = Date.now();
+  localStorage.setItem("quitTrackerStartTime", startTime);
+  initializeMilestones(); // Reset milestone list
+  updateTimer();
+  timerInterval = setInterval(updateTimer, 1000);
+}
+
+// Update timer
+function updateTimer() {
+  const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+  const hours = Math.floor(elapsedTime / 3600);
+  const minutes = Math.floor((elapsedTime % 3600) / 60);
+  const seconds = elapsedTime % 60;
+
+  timerDisplay.innerHTML = `Time Since Quit: ${hours}h ${minutes}m ${seconds}s`;
+
+  milestones.forEach((milestone, index) => {
+    if (elapsedTime >= milestone.time) {
+      const milestoneDiv = document.querySelector(`#milestone-${index}`);
+      if (milestoneDiv && !milestoneDiv.classList.contains("achieved")) {
+        milestoneDiv.classList.add("achieved");
+        milestoneDiv.querySelector(".progress-bar").style.width = "100%";
+        sendMilestoneUpdate(milestone.message, elapsedTime);
+      }
+    }
+  });
+}
+
+// Send milestone updates to the server
+async function sendMilestoneUpdate(milestone, elapsedTime) {
+  try {
+    const response = await fetch("https://soroushaz96.pythonanywhere.com/update-milestone", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        telegramId: "YOUR_TELEGRAM_ID", // Replace with dynamic user ID if available
+        milestone: milestone,
+        milestoneTime: elapsedTime,
+      }),
+    });
+
+    if (response.ok) {
+      console.log("Milestone update sent successfully.");
+    } else {
+      console.error("Failed to send milestone update:", response.statusText);
+    }
+  } catch (error) {
+    console.error("Error sending milestone update:", error);
+  }
+}
+
+// Initialize milestones UI
+function initializeMilestones() {
+  milestonesList.innerHTML = "";
+  milestones.forEach((milestone, index) => {
+    const milestoneDiv = document.createElement("div");
+    milestoneDiv.classList.add("milestone");
+    milestoneDiv.id = `milestone-${index}`;
+    milestoneDiv.innerHTML = `
+      <div class="progress-bar-container">
+        <div class="progress-bar" style="width: 0%;"></div>
+      </div>
+      <span>${milestone.message}</span>
+    `;
+    milestonesList.appendChild(milestoneDiv);
+  });
+}
+
+// Restore timer state on page load
 function restoreState() {
   const savedStartTime = localStorage.getItem("quitTrackerStartTime");
   if (savedStartTime) {
     startTime = parseInt(savedStartTime, 10);
-    milestones.forEach(milestone => addMilestoneToList(milestone));
+    initializeMilestones();
+    updateTimer();
     timerInterval = setInterval(updateTimer, 1000);
   } else {
     startTimer();
   }
 }
 
-// Start timer
-function startTimer() {
-  startTime = Date.now();
-  localStorage.setItem("quitTrackerStartTime", startTime);
-  milestones.forEach(milestone => addMilestoneToList(milestone));
-  timerInterval = setInterval(updateTimer, 1000);
-}
-
-// Restart timer
-function restartTimer() {
-  if (confirm("Are you sure you want to restart the timer?")) {
-    clearInterval(timerInterval);
-    startTimer();
-  }
-}
-
-// Update timer
-function updateTimer() {
-  const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
-  timerDisplay.innerHTML = `Time Since Quit: ${elapsedTime}s`;
-  updateMilestones(elapsedTime);
-}
-
-// Add milestones to the list
-function addMilestoneToList(milestone) {
-  const milestoneDiv = document.createElement("div");
-  milestoneDiv.classList.add("milestone");
-  milestoneDiv.textContent = milestone.message;
-  milestonesList.appendChild(milestoneDiv);
-}
-
-// Update milestones
-function updateMilestones(elapsedTime) {
-  milestones.forEach(milestone => {
-    if (elapsedTime >= milestone.time) {
-      sendMilestoneUpdate(milestone.message, elapsedTime);
-    }
-  });
-}
-
-// Send milestone update to the backend
-function sendMilestoneUpdate(milestone, elapsedTime) {
-  fetch("https://soroushaz96.pythonanywhere.com/update-milestone", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      telegramId: telegram?.initDataUnsafe?.user?.id,
-      milestone: milestone,
-      milestoneTime: elapsedTime,
-    }),
-  });
-}
-
-restartBtn.addEventListener("click", restartTimer);
+// Initialize the app
+initializeMilestones();
 restoreState();
