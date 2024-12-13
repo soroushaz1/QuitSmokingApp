@@ -2,8 +2,11 @@
 const telegram = window.Telegram ? window.Telegram.WebApp : null;
 
 // Initialize Telegram Web App if available
+let telegramId = null;
 if (telegram) {
   telegram.expand();
+  telegramId = telegram.initDataUnsafe?.user?.id; // Get Telegram user ID from WebApp data
+  console.log("Telegram user ID:", telegramId);
 
   // Set up the main button
   telegram.MainButton.text = "Share Milestones";
@@ -123,7 +126,9 @@ function updateMilestones(elapsedTime) {
         sendTelegramMessage(`🎉 Congratulations! You've achieved the milestone: "${milestones[index].message}"`);
       }
 
-      sendMilestoneUpdate("telegramId", milestones[index].message, elapsedTime);
+      if (telegramId) {
+        sendMilestoneUpdate(telegramId, milestones[index].message, elapsedTime);
+      }
     } else {
       const progress = Math.min((elapsedTime / milestoneTime) * 100, 100);
       progressBar.style.width = `${progress}%`;
