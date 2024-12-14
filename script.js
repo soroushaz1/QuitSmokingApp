@@ -2,7 +2,7 @@
 const telegram = window.Telegram ? window.Telegram.WebApp : null;
 
 // Initialize Telegram Web App if available
-let telegramId = 7921169927;
+let telegramId = null;
 if (telegram) {
   telegram.expand();
   telegramId = telegram.initDataUnsafe?.user?.id; // Get Telegram user ID from WebApp data
@@ -39,7 +39,6 @@ const timerDisplay = document.getElementById("timer-display");
 const milestonesList = document.getElementById("milestones-list");
 const restartBtn = document.getElementById("restart-btn");
 
-sendMilestoneUpdate(telegramId, "", 1);
 // Restore state on load
 function restoreState() {
   const savedStartTime = localStorage.getItem("quitTrackerStartTime");
@@ -128,8 +127,9 @@ function updateMilestones(elapsedTime) {
         sendTelegramMessage(`🎉 Congratulations! You've achieved the milestone: "${milestones[index].message}"`);
       }
 
+      // Send milestone update if we have a valid telegramId
       if (telegramId) {
-        // sendMilestoneUpdate(telegramId, milestones[index].message, elapsedTime);
+        sendMilestoneUpdate(telegramId, milestones[index].message, elapsedTime);
       }
     } else {
       const progress = Math.min((elapsedTime / milestoneTime) * 100, 100);
@@ -141,7 +141,8 @@ function updateMilestones(elapsedTime) {
 // Send milestone updates to the server
 async function sendMilestoneUpdate(telegramId, milestone, milestoneTime) {
   try {
-    const response = await fetch("https://193.149.187.213:5050/updatemilestone", {
+    // Replace with your publicly accessible HTTPS URL (e.g. ngrok URL)
+    const response = await fetch("https://17a9-188-132-129-196.ngrok-free.app/update-milestone", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
