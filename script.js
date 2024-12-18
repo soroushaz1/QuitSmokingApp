@@ -142,7 +142,7 @@ function updateMilestones(elapsedTime) {
 async function sendMilestoneUpdate(telegramId, milestone, milestoneTime) {
   try {
     // Replace with your publicly accessible HTTPS URL (e.g. ngrok URL)
-    const response = await fetch("https://b3db-188-132-129-196.ngrok-free.app/update-milestone", {
+    const response = await fetch("https://af97-188-132-129-196.ngrok-free.app", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
