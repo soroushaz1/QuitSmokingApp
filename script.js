@@ -124,7 +124,7 @@ function updateMilestones(elapsedTime) {
       progressBar.style.width = "100%";
 
       if (telegram) {
-        sendTelegramMessage(`🎉 Congratulations! You've achieved the milestone: "${milestones[index].message}"`);
+        shareMilestone(`${milestones[index].message}`);
       }
 
       // Send milestone update if we have a valid telegramId
@@ -167,11 +167,11 @@ async function sendMilestoneUpdate(telegramId, milestone, milestoneTime) {
 }
 
 
-function sendTelegramMessage(message) {
+function shareMilestone(message) {
   if (telegram) {
     telegram.MainButton.onClick(() => {
       // Generate a sharable deep link for Telegram
-      const milestoneShareMessage = `🎉 I just achieved this milestone in the Quit Smoking Tracker:\n\n"${message}"\n\nJoin me and start your journey here: https://t.me/QuitSmokingTrackerBot`;
+      const milestoneShareMessage = `🎉 I just achieved this milestone in the Quit Smoking Tracker:\n"${message}"\nJoin me and start your journey here: https://t.me/QuitSmokingTrackerBot`;
       
       // Open the Telegram share menu
       telegram.openTelegramLink(
