@@ -141,9 +141,7 @@ function updateMilestones(elapsedTime) {
 // Send milestone updates to the server
 async function sendMilestoneUpdate(telegramId, milestone, milestoneTime) {
   try {
-    // Replace with your publicly accessible HTTPS URL (e.g. ngrok URL)
-    const response = await fetch("https://af97-188-132-129-196.ngrok-free.app/update-milestone", {
-
+    const response = await fetch("https://163c-188-132-129-196.ngrok-free.app/update-milestone", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -156,6 +154,8 @@ async function sendMilestoneUpdate(telegramId, milestone, milestoneTime) {
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`HTTP error! Status: ${response.status}, Response: ${errorText}`);
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
@@ -165,6 +165,7 @@ async function sendMilestoneUpdate(telegramId, milestone, milestoneTime) {
     console.error("Error sending milestone update:", error);
   }
 }
+
 
 // Send Telegram messages
 function sendTelegramMessage(message) {
