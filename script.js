@@ -167,15 +167,25 @@ async function sendMilestoneUpdate(telegramId, milestone, milestoneTime) {
 }
 
 
-// Send Telegram messages
 function sendTelegramMessage(message) {
   if (telegram) {
     telegram.MainButton.onClick(() => {
-      telegram.sendData(message);
+      // Generate a sharable deep link for Telegram
+      const milestoneShareMessage = `🎉 I just achieved this milestone in the Quit Smoking Tracker:\n\n"${message}"\n\nJoin me and start your journey here: https://t.me/QuitSmokingTrackerBot`;
+      
+      // Open the Telegram share menu
+      telegram.openTelegramLink(
+        `https://t.me/share/url?url=${encodeURIComponent(
+          milestoneShareMessage
+        )}`
+      );
+
+      console.log("Milestone shared:", milestoneShareMessage);
     });
     telegram.MainButton.show();
   }
 }
+
 
 restartBtn.addEventListener("click", restartTimer);
 
