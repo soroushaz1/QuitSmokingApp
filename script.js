@@ -1,6 +1,6 @@
 // Check if Telegram Web App is available
 const telegram = window.Telegram ? window.Telegram.WebApp : null;
-
+debugger;
 // Initialize Telegram Web App if available
 let telegramId = null;
 if (telegram) {
