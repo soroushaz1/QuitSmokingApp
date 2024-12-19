@@ -15,8 +15,7 @@ if (telegram) {
 
 // Milestones data
 const milestones = [
-  { time: 1, message: "Your heart rate and blood pressure have normalized." },
-  { time: 1 * 60, message: "Your heart rate and blood pressure have normalized." },
+  { time: 20 * 60, message: "Your heart rate and blood pressure have normalized." },
   { time: 8 * 60 * 60, message: "Carbon monoxide levels in your blood return to normal." },
   { time: 24 * 60 * 60, message: "Your risk of heart attack begins to decrease." },
   { time: 48 * 60 * 60, message: "Nerve endings start regenerating, improving taste and smell." },
