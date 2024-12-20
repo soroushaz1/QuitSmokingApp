@@ -140,7 +140,7 @@ function updateMilestones(elapsedTime) {
 // Send milestone updates to the server
 async function sendMilestoneUpdate(telegramId, milestone, milestoneTime) {
   try {
-    const response = await fetch("https://de98-188-132-129-196.ngrok-free.app/update-milestone", {
+    const response = await fetch("https://a433-188-132-129-196.ngrok-free.app/update-milestone", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
