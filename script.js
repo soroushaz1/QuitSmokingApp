@@ -111,6 +111,25 @@ function addMilestoneToList(milestone) {
   milestonesList.appendChild(milestoneDiv);
 }
 
+function shareMilestone(message) {
+  if (telegram) {
+    telegram.MainButton.onClick(() => {
+      // Generate a sharable deep link for Telegram
+      const milestoneShareMessage = `🎉 I just achieved this milestone in the Quit Smoking Tracker:\n"${message}"\nJoin me and start your journey here: https://t.me/QuitSmokingTrackerBot`;
+      
+      // Open the Telegram share menu
+      telegram.openTelegramLink(
+        `https://t.me/share/url?url=${encodeURIComponent(
+          milestoneShareMessage
+        )}`
+      );
+
+      console.log("Milestone shared:", milestoneShareMessage);
+    });
+    telegram.MainButton.show();
+  }
+}
+
 // Update milestones dynamically
 function updateMilestones(elapsedTime) {
   const milestonesElements = milestonesList.querySelectorAll(".milestone");
@@ -163,26 +182,6 @@ async function sendMilestoneUpdate(telegramId, milestone, milestoneTime) {
     console.log("Milestone update successful:", data);
   } catch (error) {
     console.error("Error sending milestone update:", error);
-  }
-}
-
-
-function shareMilestone(message) {
-  if (telegram) {
-    telegram.MainButton.onClick(() => {
-      // Generate a sharable deep link for Telegram
-      const milestoneShareMessage = `🎉 I just achieved this milestone in the Quit Smoking Tracker:\n"${message}"\nJoin me and start your journey here: https://t.me/QuitSmokingTrackerBot`;
-      
-      // Open the Telegram share menu
-      telegram.openTelegramLink(
-        `https://t.me/share/url?url=${encodeURIComponent(
-          milestoneShareMessage
-        )}`
-      );
-
-      console.log("Milestone shared:", milestoneShareMessage);
-    });
-    telegram.MainButton.show();
   }
 }
 
