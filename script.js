@@ -8,9 +8,10 @@ if (telegram) {
   telegramId = telegram.initDataUnsafe?.user?.id; // Get Telegram user ID from WebApp data
   console.log("Telegram user ID:", telegramId);
 
-  // Set up the main button
-  telegram.MainButton.text = "Share Progress";
+  // Set up the main button (default state)
+  telegram.MainButton.text = "Share Milestone";
   telegram.MainButton.setParams({ color: "#28a745", text_color: "#ffffff" });
+  telegram.MainButton.hide(); // Hide by default
 }
 
 let startTime = null;
@@ -80,7 +81,6 @@ async function resetMilestones(telegramId) {
   }
 }
 
-
 // Update timer
 function updateTimer() {
   const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
@@ -123,6 +123,7 @@ async function fetchMilestones(telegramId, elapsedTime) {
   }
 }
 
+// Update milestones display
 function updateMilestonesDisplay(milestones) {
   milestonesList.innerHTML = ""; // Clear existing milestones
 
@@ -147,12 +148,36 @@ function updateMilestonesDisplay(milestones) {
     // Highlight achieved milestones
     if (milestone.achieved) {
       milestoneDiv.classList.add("achieved");
+
+      // Enable the Share Milestone button
+      enableShareButton(milestone.message);
     }
 
     milestonesList.appendChild(milestoneDiv);
   });
 }
 
+// Enable the Telegram Share Milestone button
+function enableShareButton(message) {
+  if (telegram) {
+    telegram.MainButton.onClick(() => {
+      // Share the milestone message
+      const shareText = `🎉 I just achieved a milestone: ${message}\n\nJoin me on my quit smoking journey! 🚭`;
+      telegram.MainButton.setText("Sharing...");
+      telegram.MainButton.disable();
+
+      // Use Telegram deep linking for sharing
+      window.open(`https://t.me/share/url?url=${encodeURIComponent(shareText)}`, "_blank");
+
+      setTimeout(() => {
+        telegram.MainButton.setText("Share Milestone");
+        telegram.MainButton.enable();
+      }, 3000);
+    });
+
+    telegram.MainButton.show();
+  }
+}
 
 // Restart button event listener
 restartBtn.addEventListener("click", restartTimer);
