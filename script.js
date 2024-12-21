@@ -116,7 +116,7 @@ function updateMilestones(elapsedTime) {
   const milestonesElements = milestonesList.querySelectorAll(".milestone");
 
   milestonesElements.forEach((milestoneDiv, index) => {
-    const milestoneTime = milestones[index].time;
+    const milestoneTime = milestones[index].time / 60;
     const progressBar = milestoneDiv.querySelector(".progress-bar");
 
     if (elapsedTime >= milestoneTime) {
