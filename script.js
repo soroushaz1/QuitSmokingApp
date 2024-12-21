@@ -17,6 +17,7 @@ let startTime = null;
 let timerInterval = null;
 
 const timerDisplay = document.getElementById("timer-display");
+const milestonesList = document.getElementById("milestones-list");
 const restartBtn = document.getElementById("restart-btn");
 
 // Restore state on load
@@ -58,16 +59,16 @@ function updateTimer() {
 
   timerDisplay.innerHTML = `Time Since Quit: <span>${hours}h ${minutes}m ${seconds}s</span>`;
 
-  // Send elapsed time to the server
+  // Fetch milestones and update progress
   if (telegramId) {
-    sendMilestoneUpdate(telegramId, elapsedTime);
+    fetchMilestones(telegramId, elapsedTime);
   }
 }
 
-// Send milestone updates to the server
-async function sendMilestoneUpdate(telegramId, elapsedTime) {
+// Fetch milestones from the server
+async function fetchMilestones(telegramId, elapsedTime) {
   try {
-    const response = await fetch("https://a433-188-132-129-196.ngrok-free.app/update-milestone", {
+    const response = await fetch("https://a433-188-132-129-196.ngrok-free.app/get-milestones", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -85,10 +86,40 @@ async function sendMilestoneUpdate(telegramId, elapsedTime) {
     }
 
     const data = await response.json();
-    console.log("Milestone update successful:", data);
+    updateMilestonesDisplay(data.milestones);
   } catch (error) {
-    console.error("Error sending milestone update:", error);
+    console.error("Error fetching milestones:", error);
   }
+}
+
+// Update milestones display
+function updateMilestonesDisplay(milestones) {
+  milestonesList.innerHTML = ""; // Clear existing milestones
+
+  milestones.forEach((milestone) => {
+    const milestoneDiv = document.createElement("div");
+    milestoneDiv.classList.add("milestone");
+
+    const progressContainer = document.createElement("div");
+    progressContainer.classList.add("progress-bar-container");
+
+    const progressBar = document.createElement("div");
+    progressBar.classList.add("progress-bar");
+    progressBar.style.width = `${milestone.progress}%`;
+    progressContainer.appendChild(progressBar);
+
+    const milestoneText = document.createElement("span");
+    milestoneText.textContent = milestone.message;
+
+    milestoneDiv.appendChild(progressContainer);
+    milestoneDiv.appendChild(milestoneText);
+
+    if (milestone.achieved) {
+      milestoneDiv.classList.add("achieved");
+    }
+
+    milestonesList.appendChild(milestoneDiv);
+  });
 }
 
 // Restart button event listener
