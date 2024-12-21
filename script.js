@@ -129,7 +129,7 @@ function updateMilestones(elapsedTime) {
 
       // Send milestone update if we have a valid telegramId
       if (telegramId) {
-        sendMilestoneUpdate(telegramId, index, elapsedTime);
+        sendMilestoneUpdate(telegramId, index+1, elapsedTime);
       }
     } else {
       const progress = Math.min((elapsedTime / milestoneTime) * 100, 100);
