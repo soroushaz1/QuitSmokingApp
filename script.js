@@ -47,8 +47,39 @@ function restartTimer() {
   if (confirmReset) {
     clearInterval(timerInterval);
     startTimer();
+
+    if (telegramId) {
+      resetMilestones(telegramId);
+    }
   }
 }
+
+// Send a request to reset milestones on the server
+async function resetMilestones(telegramId) {
+  try {
+    const response = await fetch("https://6f4a-188-132-129-196.ngrok-free.app/reset-timer", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        telegramId: telegramId,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`HTTP error! Status: ${response.status}, Response: ${errorText}`);
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log("Timer reset successful:", data);
+  } catch (error) {
+    console.error("Error resetting milestones:", error);
+  }
+}
+
 
 // Update timer
 function updateTimer() {
