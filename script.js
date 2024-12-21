@@ -162,7 +162,7 @@ function enableShareButton(message) {
   if (telegram) {
     telegram.MainButton.onClick(() => {
       // Share the milestone message
-      const shareText = `🎉 I just achieved a milestone: ${message}\n\nJoin me on my quit smoking journey! 🚭`;
+      const shareText = `🎉 I just achieved a milestone: ${message}\n\nJoin me on my quit smoking journey! 🚭\n\n@QuitSmokingTrackerBot`;
       telegram.MainButton.setText("Sharing...");
       telegram.MainButton.disable();
 
