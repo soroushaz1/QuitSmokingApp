@@ -68,7 +68,7 @@ function updateTimer() {
 // Fetch milestones from the server
 async function fetchMilestones(telegramId, elapsedTime) {
   try {
-    const response = await fetch("https://6f4a-188-132-129-196.ngrok-free.app/get-milestones", {
+    const response = await fetch("https://6f4a-188-132-129-196.ngrok-free.app/update-milestone", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
