@@ -92,7 +92,6 @@ async function fetchMilestones(telegramId, elapsedTime) {
   }
 }
 
-// Update milestones display
 function updateMilestonesDisplay(milestones) {
   milestonesList.innerHTML = ""; // Clear existing milestones
 
@@ -105,7 +104,7 @@ function updateMilestonesDisplay(milestones) {
 
     const progressBar = document.createElement("div");
     progressBar.classList.add("progress-bar");
-    progressBar.style.width = `${milestone.progress}%`;
+    progressBar.style.width = `${milestone.progress}%`; // Set progress dynamically
     progressContainer.appendChild(progressBar);
 
     const milestoneText = document.createElement("span");
@@ -114,6 +113,7 @@ function updateMilestonesDisplay(milestones) {
     milestoneDiv.appendChild(progressContainer);
     milestoneDiv.appendChild(milestoneText);
 
+    // Highlight achieved milestones
     if (milestone.achieved) {
       milestoneDiv.classList.add("achieved");
     }
@@ -121,6 +121,7 @@ function updateMilestonesDisplay(milestones) {
     milestonesList.appendChild(milestoneDiv);
   });
 }
+
 
 // Restart button event listener
 restartBtn.addEventListener("click", restartTimer);
